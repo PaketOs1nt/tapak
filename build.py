@@ -7,7 +7,7 @@ os.chdir("src")
 MAIN_FILE = "main.py"
 RESULT_FILE = "tapak.py"
 
-MODULES = ["test.py"]
+MODULES = ["importer.py", "repo.py"]
 
 build = builder.Builder.from_file(MAIN_FILE)
 print(f"[builder] loaded main file {MAIN_FILE}")
