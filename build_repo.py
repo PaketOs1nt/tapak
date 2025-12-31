@@ -41,7 +41,7 @@ for module in modules:
                 module_structure["requirements"].append({"name": name, "version": ver})
 
     if os.path.exists(f"{module}.txt"):
-        with open("requirements.txt", "r") as f:
+        with open(f"{module}.txt", "r") as f:
             module_structure["desc"] = f.read().strip()
 
     structure["modules"].append(module_structure)
