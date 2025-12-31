@@ -31,7 +31,7 @@ for module in modules:
         if conn.endswith(".py"):
             build.add_module(conn)
 
-    code = build.build()
+    code = build.build(_ModuleLoader=False)
     module_structure["code"] = code
 
     if os.path.exists("requirements.txt"):

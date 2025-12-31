@@ -1,3 +1,13 @@
+import importer
+
+REQ = [importer.Module("requests", "2.32.3")]
+
+for r in REQ:
+    if not r.check():
+        print("installing " + r.name)
+        r.install()
+        print("installed " + r.name)
+
 import repo
 
 REPO_URL = (

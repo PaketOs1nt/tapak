@@ -41,7 +41,10 @@ class ModuleJson:
                 req.install()
 
     def execute(self):
-        exec(compile(self.code, "name.py", "exec"), {})
+        exec(
+            compile(self.code, "name.py", "exec"),
+            {"ModuleLoader": globals()["ModuleLoader"]},
+        )
 
 
 @dataclass

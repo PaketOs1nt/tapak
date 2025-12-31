@@ -6,7 +6,7 @@
             "name": "test",
             "requirements": [],
             "desc": "test description for test file",
-            "code": "from types import ModuleType\r\n\r\n\r\nclass ModuleLoader:\r\n    def __init__(self) -> None:\r\n        self.modules = {}\r\n\r\n    def load(self, name: str, code: str, filename: str) -> ModuleType:\r\n        mod = ModuleType(name)\r\n        mod.__file__ = filename\r\n        mod.__dict__[\"ModuleLoader\"] = ModuleLoader\r\n        exec(compile(code, filename, \"exec\"), mod.__dict__)\r\n\r\n        self.modules[name] = mod\r\n\r\n        return mod\r\n\n_d144a884c5f99987 = ModuleLoader()\nprint('hello world')"
+            "code": "\n_ac0a00aaf044e6c4 = ModuleLoader()\nprint('hello world')"
         }
     ]
 }
