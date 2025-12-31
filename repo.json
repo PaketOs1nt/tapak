@@ -1,1 +1,12 @@
-
+{
+  "name": "Paket Repo",
+  "author": "@PaketPKSoftware",
+  "modules": [
+    {
+      "name": "test",
+      "desc": "just test module",
+      "code": "print('hello world')",
+      "requirements": []
+    }
+  ]
+}
