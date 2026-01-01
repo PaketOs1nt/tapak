@@ -24,8 +24,8 @@ class Main:
         return input(f"[tapak] {data} > ")
 
     def first(self):
-        self.repo = repo.Repo(REPO_URL)
-        self.ic(f"loaded repo {self.repo.repo.name} by {self.repo.repo.name}")
+        self.repo = repo.Repo(REPO_URL)  # type: ignore
+        self.ic(f"loaded repo {self.repo.repo.name} by {self.repo.repo.author}")
 
     def looped(self) -> bool:
         inp = self.get("command").split(" ")
