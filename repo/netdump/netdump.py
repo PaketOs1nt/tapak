@@ -10,6 +10,8 @@ from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from logging.handlers import RotatingFileHandler
 
+workth = True
+
 if sys.argv[-1].startswith("-"):
     external_ip = sys.argv[-1][1:]
 
@@ -154,8 +156,8 @@ class Network:
 
 
 def progress():
-    global loaded_ips, scanned_ips
-    while True:
+    global loaded_ips, scanned_ips, workth
+    while workth:
         print(
             f"time: {time.time() - start_time:.2f}, loaded ips: {loaded_ips}, scanned ips: {scanned_ips} [{loaded_ips}/{scanned_ips}]"
         )
@@ -257,9 +259,10 @@ def localscanner(ip: str):
 
 
 def main():
-    global loaded_ips, scanned_ips, timeouts, globalthreads, dumped_dns, devices
+    global loaded_ips, scanned_ips, timeouts, globalthreads, dumped_dns, devices, workth
     print(f"current network: {external_ip}")
-    threading.Thread(target=progress, daemon=True).start()
+    thh = threading.Thread(target=progress, daemon=True)
+    thh.start()
     os.makedirs(dumpdir, exist_ok=True)
     os.makedirs(portsdir, exist_ok=True)
 
@@ -346,6 +349,9 @@ def main():
     ) as f:
         for device, count in device_stats.items():
             f.write(f"{device}: {count}\n")
+
+    workth = False
+    thh.join()
 
 
 if __name__ == "__main__":
