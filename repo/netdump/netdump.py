@@ -158,10 +158,11 @@ class Network:
 def progress():
     global loaded_ips, scanned_ips, workth
     while workth:
-        print(
-            f"time: {time.time() - start_time:.2f}, loaded ips: {loaded_ips}, scanned ips: {scanned_ips} [{loaded_ips}/{scanned_ips}]"
-        )
-        time.sleep(3)
+        if workth:
+            print(
+                f"time: {time.time() - start_time:.2f}, loaded ips: {loaded_ips}, scanned ips: {scanned_ips} [{loaded_ips}/{scanned_ips}]"
+            )
+            time.sleep(3)
 
 
 def localscanner(ip: str):
