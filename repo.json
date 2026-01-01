@@ -6,7 +6,7 @@
             "name": "test",
             "requirements": [],
             "desc": "test description for test file",
-            "code": "\n_b0cefe9a38063d2e = ModuleLoader()\nprint('hello world')"
+            "code": "\n_0c72895c28b9bc3a = ModuleLoader()\nprint('hello world', __name__)"
         }
     ]
 }

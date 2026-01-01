@@ -1,1 +1,1 @@
-print("hello world")
+print("hello world", __name__)
