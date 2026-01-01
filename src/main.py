@@ -25,7 +25,7 @@ class Main:
 
     def first(self):
         self.repo = repo.Repo(REPO_URL)  # type: ignore
-        self.ic(f"loaded repo {self.repo.repo.name} by {self.repo.repo.author}")
+        self.ic(f'loaded repo "{self.repo.repo.name}" by {self.repo.repo.author}')
 
     def looped(self) -> bool:
         inp = self.get("command").split(" ")
@@ -39,6 +39,15 @@ class Main:
                     if mod.name == module:
                         mod.install_requirements()
                         mod.execute()
+                        break
+
+            case "save", module:
+                for mod in self.repo.repo.modules:
+                    if mod.name == module:
+                        path = f"{mod.name}.py"
+                        with open(path, "w") as f:
+                            f.write(mod.code)
+                        self.ic(f"saved to {path}")
                         break
 
             case ["ls"]:
@@ -55,7 +64,7 @@ class Main:
 
             case ["help"]:
                 self.ic(
-                    "exit - exit the shell\nrun <name> - run module\nhelp - print help\nls - show modules"
+                    "exit - exit the shell\nrun <name> - run module\nhelp - print help\nls - show modules\nsave <name> - save module as python file"
                 )
 
         return True
@@ -63,8 +72,11 @@ class Main:
     def main(self):
         self.first()
         while True:
-            if not self.looped():
-                break
+            try:
+                if not self.looped():
+                    break
+            except Exception as e:
+                self.ic(str(e))
 
 
 if __name__ == "__main__":
