@@ -45,8 +45,8 @@ class Main:
                 for mod in self.repo.repo.modules:
                     if mod.name == module:
                         path = f"{mod.name}.py"
-                        with open(path, "w") as f:
-                            f.write(mod.code)
+                        with open(path, "wb") as f:
+                            f.write(mod.code.encode())
                         self.ic(f"saved to {path}")
                         break
 
