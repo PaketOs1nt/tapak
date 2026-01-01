@@ -62,6 +62,12 @@ class Main:
                             )
                     self.ic("=" * 20)
 
+            case "load", new_repo_url:
+                self.repo = repo.Repo(new_repo_url)  # type: ignore
+                self.ic(
+                    f'loaded repo "{self.repo.repo.name}" by {self.repo.repo.author}'
+                )
+
             case ["help"]:
                 self.ic(
                     "exit - exit the shell\nrun <name> - run module\nhelp - print help\nls - show modules\nsave <name> - save module as python file"
