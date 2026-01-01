@@ -1,5 +1,5 @@
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from . import obfunparse as ast
@@ -29,16 +29,38 @@ class PreModule:
             ),
         )
 
+    def cached_build(self) -> ast.AST:
+        return ast.Assign(
+            targets=[ast.Name(id=self.name, ctx=ast.Store())],
+            value=ast.Subscript(
+                value=ast.Attribute(
+                    value=ast.Name(id="ModuleLoader", ctx=ast.Load()),
+                    attr="cache",
+                    ctx=ast.Load(),
+                ),
+                slice=ast.Tuple(
+                    elts=[ast.Constant(value=self.name), ast.Constant(value=self.file)],
+                    ctx=ast.Load(),
+                ),
+                ctx=ast.Load(),
+            ),
+        )
+
 
 class AstOnefileImports(ast.NodeTransformer):
     def __init__(
-        self, modules: dict[str, PreModule], _ModuleLoader: bool = True
+        self,
+        modules: dict[str, PreModule],
+        cache: list[str],
+        _ModuleLoader: bool = True,
     ) -> None:
         super().__init__()
         self.final: ast.AST | None = None
         self.loader_name = "_" + os.urandom(8).hex()
         self.modules = modules
         self._ModuleLoader = _ModuleLoader
+        self.cache = cache
+        self.compile_api = False
 
     def visit(self, node: ast.AST) -> ast.AST | None:
         result = super().visit(node)
@@ -49,9 +71,23 @@ class AstOnefileImports(ast.NodeTransformer):
         if len(node.names) == 1:
             name = node.names[0].name
             if name in self.modules:
-                return ast.fix_missing_locations(
-                    self.modules[name].build(self.loader_name)  # type: ignore
-                )
+                if name not in self.cache:
+                    self.compile_api = True
+                    self.cache.append(name)
+
+                    mod = self.modules[name]
+
+                    without = self.modules.copy()
+                    del without[mod.name]
+
+                    mod_builder = Builder(mod.code, mod.file)
+                    mod_builder.cache = self.cache
+                    mod_builder.modules = without
+                    mod.code = mod_builder.build(_ModuleLoader=False)
+
+                    return ast.fix_missing_locations(mod.build(self.loader_name))
+                else:
+                    return ast.fix_missing_locations(self.modules[name].cached_build())
 
         return self.generic_visit(node)
 
@@ -63,7 +99,7 @@ class AstOnefileImports(ast.NodeTransformer):
         else:
             api_code = ""
 
-        if len(self.modules) > 0:
+        if self.compile_api:
             result = f"{api_code}\n{self.loader_name} = ModuleLoader()\n"
         else:
             result = ""
@@ -87,6 +123,7 @@ class Builder:
         self.code = code
         self.name = name
         self.modules: dict[str, PreModule] = {}
+        self.cache: list[str] = []
 
     def add_module(self, file: str):
         with open(file, "rb") as f:
@@ -96,15 +133,10 @@ class Builder:
         self.modules[name] = PreModule(name, code, file)
 
     def build(self, _ModuleLoader: bool = True):
-        for mod in self.modules.values():
-            without = self.modules.copy()
-            del without[mod.name]
-            mod_builder = Builder(mod.code, mod.file)
-            mod_builder.modules = without
-            mod.code = mod_builder.build(_ModuleLoader=False)
-
         ast_code = ast.parse(self.code)
-        fix_imports = AstOnefileImports(self.modules, _ModuleLoader=_ModuleLoader)
+        fix_imports = AstOnefileImports(
+            self.modules, self.cache, _ModuleLoader=_ModuleLoader
+        )
         fix_imports.visit(ast_code)
 
         result = fix_imports.compile()
