@@ -32,7 +32,7 @@ for module in modules:
         if conn.endswith(".py"):
             build.add_module(conn)
 
-    code = build.build(_ModuleLoader=False)
+    code = build.build()
     module_structure["code"] = code
 
     if os.path.exists("requirements.txt"):
