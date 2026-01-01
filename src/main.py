@@ -51,7 +51,7 @@ class Main:
 
     def looped(self) -> bool:
         inp = self.get("command").split(" ")
-        self.ic("=" * 20)
+        self.ic("=" * 25)
         match inp:
             case ["exit"]:
                 return False
@@ -82,7 +82,7 @@ class Main:
                             self.ic(
                                 f"{req.name} {req.version} ({'' if req.check() else 'not '}installed)"
                             )
-                    self.ic("=" * 20)
+                    self.ic("=" * 25)
 
             case "load", new_repo_url:
                 self.repo = repo.Repo(new_repo_url)  # type: ignore
