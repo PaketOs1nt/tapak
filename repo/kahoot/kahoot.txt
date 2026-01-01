@@ -1,1 +1,1 @@
-чит на Kahoot из моего гитхаба, имба но хз как для мобилок
+cheat for Kahoot from my github, for use run args in main tapak.py

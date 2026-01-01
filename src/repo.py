@@ -9,7 +9,9 @@ import importer
 class ReqirementJson(importer.Module):
     @staticmethod
     def from_json(data: dict) -> "ReqirementJson":
-        return ReqirementJson(data.get("name", ""), data.get("version", ""))
+        return ReqirementJson(
+            data.get("name", "").strip(), data.get("version", "").strip()
+        )
 
 
 @dataclass
