@@ -43,7 +43,7 @@ class ModuleJson:
     def execute(self):
         exec(
             compile(self.code, "name.py", "exec"),
-            {"ModuleLoader": globals()["ModuleLoader"]},
+            {"ModuleLoader": globals()["ModuleLoader"], "__name__": "__main__"},
         )
 
 
