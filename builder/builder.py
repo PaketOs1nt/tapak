@@ -62,7 +62,11 @@ class AstOnefileImports(ast.NodeTransformer):
         else:
             api_code = ""
 
-        result = f"{api_code}\n{self.loader_name} = ModuleLoader()\n"
+        if len(self.modules) > 0:
+            result = f"{api_code}\n{self.loader_name} = ModuleLoader()\n"
+        else:
+            result = ""
+
         if self.final:
             result += ast.unparse(self.final)
 
