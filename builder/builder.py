@@ -56,7 +56,7 @@ class AstOnefileImports(ast.NodeTransformer):
     ) -> None:
         super().__init__()
         self.final: ast.AST | None = None
-        self.loader_name = "_" + os.urandom(8).hex()
+        self.loader_name = "_" + os.urandom(8).hex().upper()
         self.modules = modules
         self._ModuleLoader = _ModuleLoader
         self.cache = cache
@@ -100,7 +100,7 @@ class AstOnefileImports(ast.NodeTransformer):
             api_code = ""
 
         if self.compile_api:
-            result = f"{api_code}\n{self.loader_name} = ModuleLoader()\n"
+            result = f"{api_code}\n{self.loader_name}=ModuleLoader()\n"
         else:
             result = ""
 

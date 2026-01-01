@@ -1,12 +1,34 @@
+import hashlib
+
+import requests
+
 import importer
 
-REQ = [importer.Module("requests", "2.32.3")]
+REQUIREMENTS = [importer.Module("requests", "2.32.3")]
+LAST_VER = "https://raw.githubusercontent.com/PaketOs1nt/tapak/refs/heads/main/tapak.py"
 
-for r in REQ:
-    if not r.check():
-        print("installing " + r.name)
-        r.install()
-        print("installed " + r.name)
+for requirement in REQUIREMENTS:
+    if not requirement.check():
+        print("[loader] installing " + requirement.name)
+        requirement.install()
+        print("[loader] installed " + requirement.name)
+
+LAST_CONTENT = requests.get(LAST_VER).content
+
+with open(__file__, "rb") as f:
+    current_hash = hashlib.sha256(f.read()).hexdigest()
+last_hash = hashlib.sha256(LAST_CONTENT).hexdigest()
+
+if last_hash != current_hash:
+    print("[loader] updating...")
+    with open(__file__, "wb") as f:
+        f.write(LAST_CONTENT)
+
+    print("[loader] updated! need restart")
+    exit()
+else:
+    print("[loader] you using last version!")
+
 
 import repo
 
@@ -70,7 +92,11 @@ class Main:
 
             case ["help"]:
                 self.ic(
-                    "exit - exit the shell\nrun <name> - run module\nhelp - print help\nls - show modules\nsave <name> - save module as python file"
+                    "help - print help\n"
+                    "run <name> - run module\n"
+                    "save <name> - save module as python file\n"
+                    "ls - show modules\n"
+                    "load <repo-url> - use custom repo"
                 )
 
         return True

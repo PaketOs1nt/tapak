@@ -7,6 +7,7 @@ AUTHOR = "@PaketPKSoftware"
 REPO_NAME = "Paket Base Repo"
 
 PATH = "repo"
+OUTPUT = "repo.json"
 
 modules = os.listdir(PATH)
 
@@ -21,7 +22,6 @@ for module in modules:
     main = module + ".py"
 
     connected = os.listdir(path)
-
     connected.remove(main)
 
     os.chdir(path)
@@ -48,7 +48,9 @@ for module in modules:
             module_structure["desc"] = f.read().strip()
 
     structure["modules"].append(module_structure)
+    print(f"[repo-builder] {main} packed")
     os.chdir(start_dir)
 
-with open("repo.json", "w") as f:
+with open(OUTPUT, "w") as f:
     json.dump(structure, f, indent=4)
+print(f"[repo-builder] saved {OUTPUT}")
