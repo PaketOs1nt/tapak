@@ -1,7 +1,8 @@
-import ast
 import os
 from dataclasses import dataclass
 from typing import Any
+
+from . import obfunparse as ast
 
 
 @dataclass
@@ -39,7 +40,7 @@ class AstOnefileImports(ast.NodeTransformer):
         self.modules = modules
         self._ModuleLoader = _ModuleLoader
 
-    def visit(self, node: ast.AST) -> ast.AST:
+    def visit(self, node: ast.AST) -> ast.AST | None:
         result = super().visit(node)
         self.final = result
         return result
@@ -58,7 +59,7 @@ class AstOnefileImports(ast.NodeTransformer):
         if self._ModuleLoader:
             api_path = os.path.join(os.path.dirname(__file__), "api.py")
             with open(api_path, "rb") as f:
-                api_code = f.read().decode()
+                api_code = ast.unparse(ast.parse(f.read().decode()))
         else:
             api_code = ""
 

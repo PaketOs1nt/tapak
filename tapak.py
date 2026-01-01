@@ -1,85 +1,73 @@
 from types import ModuleType
-
-
 class ModuleLoader:
-    def __init__(self) -> None:
-        self.modules = {}
-
-    def load(self, name: str, code: str, filename: str) -> ModuleType:
-        mod = ModuleType(name)
-        mod.__file__ = filename
-        mod.__dict__["ModuleLoader"] = ModuleLoader
-        exec(compile(code, filename, "exec"), mod.__dict__)
-
-        self.modules[name] = mod
-
-        return mod
-
-_c9a74402a48f0c06 = ModuleLoader()
-importer = _c9a74402a48f0c06.load('importer', "\n_7ce2241b2d1a4c83 = ModuleLoader()\n_9ace5d8767200239 = ModuleLoader()\nimport importlib\nimport importlib.metadata\nimport sys\nimport typing\nfrom dataclasses import dataclass\nimport pip\n\n@dataclass\nclass Module:\n    name: str\n    version: str\n\n    def check(self) -> bool:\n        if importlib.util.find_spec(self.name) is None:\n            return False\n        if importlib.metadata.version(self.name) != self.version:\n            return False\n        return True\n\n    def install(self):\n        try:\n            sys.stderr = typing.TextIO()\n            pip.main(['install', f'{self.name}=={self.version}'])\n        except BaseException as e:\n            print(e)\n        finally:\n            sys.stderr = sys.__stderr__", 'importer.py')
-REQ = [importer.Module('requests', '2.32.3')]
+ def __init__(self)->None:
+  self.modules={}
+ def load(self,name:str,code:str,filename:str)->ModuleType:
+  mod=ModuleType(name)
+  mod.__file__=filename
+  mod.__dict__['ModuleLoader']=ModuleLoader
+  exec(compile(code,filename,'exec'),mod.__dict__)
+  self.modules[name]=mod
+  return mod
+_b343f4cd59656e61 = ModuleLoader()
+importer=_b343f4cd59656e61.load('importer',"_fa4aa3cc7bbc4f0e=ModuleLoader()\nimport importlib\nimport importlib.metadata\nimport sys\nimport typing\nfrom dataclasses import dataclass\nimport pip\n@dataclass\nclass Module:\n name:str\n version:str\n def check(self)->bool:\n  if importlib.util.find_spec(self.name) is None:\n   return 0o0\n  if importlib.metadata.version(self.name) != self.version:\n   return 0x0\n  return 0x1\n def install(self):\n  try:\n   sys.stderr=typing.TextIO()\n   pip.main(['install',f'{self.name}=={self.version}'])\n  except BaseException as e:\n   print(e)\n  finally:\n   sys.stderr=sys.__stderr__",'importer.py')
+REQ=[importer.Module('requests','2.32.3')]
 for r in REQ:
-    if not r.check():
-        print('installing ' + r.name)
-        r.install()
-        print('installed ' + r.name)
-repo = _c9a74402a48f0c06.load('repo', '\n_c39b10f3af248d5a = ModuleLoader()\n_5deaeed443e01d5b = ModuleLoader()\nfrom dataclasses import dataclass\nfrom typing import List\nimport requests\nimporter = _c39b10f3af248d5a.load(\'importer\', "\\n_7ce2241b2d1a4c83 = ModuleLoader()\\n_9ace5d8767200239 = ModuleLoader()\\nimport importlib\\nimport importlib.metadata\\nimport sys\\nimport typing\\nfrom dataclasses import dataclass\\nimport pip\\n\\n@dataclass\\nclass Module:\\n    name: str\\n    version: str\\n\\n    def check(self) -> bool:\\n        if importlib.util.find_spec(self.name) is None:\\n            return False\\n        if importlib.metadata.version(self.name) != self.version:\\n            return False\\n        return True\\n\\n    def install(self):\\n        try:\\n            sys.stderr = typing.TextIO()\\n            pip.main([\'install\', f\'{self.name}=={self.version}\'])\\n        except BaseException as e:\\n            print(e)\\n        finally:\\n            sys.stderr = sys.__stderr__", \'importer.py\')\n\nclass ReqirementJson(importer.Module):\n\n    @staticmethod\n    def from_json(data: dict) -> \'ReqirementJson\':\n        return ReqirementJson(data.get(\'name\', \'\').strip(), data.get(\'version\', \'\').strip())\n\n@dataclass\nclass ModuleJson:\n    name: str\n    desc: str\n    code: str\n    requirements: List[ReqirementJson]\n\n    @staticmethod\n    def from_json(data: dict) -> \'ModuleJson\':\n        return ModuleJson(data.get(\'name\', \'\'), data.get(\'desc\', \'\'), data.get(\'code\', \'\'), [ReqirementJson.from_json(req) for req in data.get(\'requirements\', [])])\n\n    def check_requirements(self) -> bool:\n        for req in self.requirements:\n            if not req.check():\n                return False\n        return True\n\n    def install_requirements(self):\n        for req in self.requirements:\n            if not req.check():\n                req.install()\n\n    def execute(self):\n        exec(compile(self.code, \'name.py\', \'exec\'), {\'ModuleLoader\': globals()[\'ModuleLoader\'], \'__name__\': \'__main__\'})\n\n@dataclass\nclass RepoJson:\n    name: str\n    author: str\n    modules: List[ModuleJson]\n\n    @staticmethod\n    def from_json(data: dict) -> \'RepoJson\':\n        return RepoJson(data.get(\'name\', \'\'), data.get(\'author\', \'\'), [ModuleJson.from_json(module) for module in data.get(\'modules\', [])])\n\nclass Repo:\n\n    def __init__(self, url: str) -> None:\n        self.url = url\n        self.load()\n\n    def load(self):\n        raw = requests.get(self.url).json()\n        self.repo = RepoJson.from_json(raw)', 'repo.py')
-REPO_URL = 'https://raw.githubusercontent.com/PaketOs1nt/tapak/refs/heads/main/repo.json'
-
+ if not r.check():
+  print('installing '+r.name)
+  r.install()
+  print('installed '+r.name)
+repo=_b343f4cd59656e61.load('repo','\n_ae6f30a40c206e91 = ModuleLoader()\nfrom dataclasses import dataclass\nfrom typing import List\nimport requests\nimporter=_ae6f30a40c206e91.load(\'importer\',"_fa4aa3cc7bbc4f0e=ModuleLoader()\\nimport importlib\\nimport importlib.metadata\\nimport sys\\nimport typing\\nfrom dataclasses import dataclass\\nimport pip\\n@dataclass\\nclass Module:\\n name:str\\n version:str\\n def check(self)->bool:\\n  if importlib.util.find_spec(self.name) is None:\\n   return 0o0\\n  if importlib.metadata.version(self.name) != self.version:\\n   return 0x0\\n  return 0x1\\n def install(self):\\n  try:\\n   sys.stderr=typing.TextIO()\\n   pip.main([\'install\',f\'{self.name}=={self.version}\'])\\n  except BaseException as e:\\n   print(e)\\n  finally:\\n   sys.stderr=sys.__stderr__",\'importer.py\')\nclass ReqirementJson(importer.Module):\n @staticmethod\n def from_json(data:dict)->\'ReqirementJson\':\n  return ReqirementJson(data.get(\'name\',\'\').strip(),data.get(\'version\',\'\').strip())\n@dataclass\nclass ModuleJson:\n name:str\n desc:str\n code:str\n requirements:List[ReqirementJson]\n @staticmethod\n def from_json(data:dict)->\'ModuleJson\':\n  return ModuleJson(data.get(\'name\',\'\'),data.get(\'desc\',\'\'),data.get(\'code\',\'\'),[ReqirementJson.from_json(req) for req in data.get(\'requirements\',[])])\n def check_requirements(self)->bool:\n  for req in self.requirements:\n   if not req.check():\n    return 0x0\n  return 0x1\n def install_requirements(self):\n  for req in self.requirements:\n   if not req.check():\n    req.install()\n def execute(self):\n  exec(compile(self.code,\'name.py\',\'exec\'),{\'ModuleLoader\':globals()[\'ModuleLoader\'],\'__name__\':\'__main__\'})\n@dataclass\nclass RepoJson:\n name:str\n author:str\n modules:List[ModuleJson]\n @staticmethod\n def from_json(data:dict)->\'RepoJson\':\n  return RepoJson(data.get(\'name\',\'\'),data.get(\'author\',\'\'),[ModuleJson.from_json(module) for module in data.get(\'modules\',[])])\nclass Repo:\n def __init__(self,url:str)->None:\n  self.url=url\n  self.load()\n def load(self):\n  raw=requests.get(self.url).json()\n  self.repo=RepoJson.from_json(raw)','repo.py')
+REPO_URL='https://raw.githubusercontent.com/PaketOs1nt/tapak/refs/heads/main/repo.json'
 class Main:
-
-    def ic(self, data: str):
-        for ln in data.split('\n'):
-            print(f'[tapak] {ln}')
-
-    def get(self, data: str):
-        return input(f'[tapak] {data} > ')
-
-    def first(self):
-        self.repo = repo.Repo(REPO_URL)
-        self.ic(f'loaded repo "{self.repo.repo.name}" by {self.repo.repo.author}')
-
-    def looped(self) -> bool:
-        inp = self.get('command').split(' ')
-        self.ic('=' * 20)
-        match inp:
-            case ['exit']:
-                return False
-            case ['run', module]:
-                for mod in self.repo.repo.modules:
-                    if mod.name == module:
-                        mod.install_requirements()
-                        mod.execute()
-                        break
-            case ['save', module]:
-                for mod in self.repo.repo.modules:
-                    if mod.name == module:
-                        path = f'{mod.name}.py'
-                        with open(path, 'wb') as f:
-                            f.write(mod.code.encode())
-                        self.ic(f'saved to {path}')
-                        break
-            case ['ls']:
-                for module in self.repo.repo.modules:
-                    self.ic(f'module name: {module.name}')
-                    self.ic(f'module description: {module.desc}')
-                    if module.requirements:
-                        self.ic('module requirements:')
-                        for req in module.requirements:
-                            self.ic(f"{req.name} {req.version} ({('' if req.check() else 'not ')}installed)")
-                    self.ic('=' * 20)
-            case ['help']:
-                self.ic('exit - exit the shell\nrun <name> - run module\nhelp - print help\nls - show modules\nsave <name> - save module as python file')
-        return True
-
-    def main(self):
-        self.first()
-        while True:
-            try:
-                if not self.looped():
-                    break
-            except Exception as e:
-                self.ic(str(e))
+ def ic(self,data:str):
+  for ln in data.split('\n'):
+   print(f'[tapak] {ln}')
+ def get(self,data:str):
+  return input(f'[tapak] {data} > ')
+ def first(self):
+  self.repo=repo.Repo(REPO_URL)
+  self.ic(f'loaded repo "{self.repo.repo.name}" by {self.repo.repo.author}')
+ def looped(self)->bool:
+  inp=self.get('command').split(' ')
+  self.ic('='*0b10100)
+  match inp:
+   case ['exit']:
+    return 0x0
+   case ['run',module]:
+    for mod in self.repo.repo.modules:
+     if mod.name == module:
+      mod.install_requirements()
+      mod.execute()
+      break
+   case ['save',module]:
+    for mod in self.repo.repo.modules:
+     if mod.name == module:
+      path=f'{mod.name}.py'
+      with open(path,'wb') as f:
+       f.write(mod.code.encode())
+      self.ic(f'saved to {path}')
+      break
+   case ['ls']:
+    for module in self.repo.repo.modules:
+     self.ic(f'module name: {module.name}')
+     self.ic(f'module description: {module.desc}')
+     if module.requirements:
+      self.ic('module requirements:')
+      for req in module.requirements:
+       self.ic(f"{req.name} {req.version} ({('' if req.check() else 'not ')}installed)")
+     self.ic('='*0x14)
+   case ['help']:
+    self.ic('exit - exit the shell\nrun <name> - run module\nhelp - print help\nls - show modules\nsave <name> - save module as python file')
+  return 0b1
+ def main(self):
+  self.first()
+  while 0b1:
+   try:
+    if not self.looped():
+     break
+   except Exception as e:
+    self.ic(str(e))
 if __name__ == '__main__':
-    app = Main()
-    app.main()
+ app=Main()
+ app.main()
