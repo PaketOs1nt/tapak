@@ -21,6 +21,7 @@ for module in modules:
     main = module + ".py"
 
     connected = os.listdir(path)
+
     connected.remove(main)
 
     os.chdir(path)
@@ -38,7 +39,9 @@ for module in modules:
         with open("requirements.txt", "r") as f:
             for line in f.readlines():
                 name, ver = line.split("==")
-                module_structure["requirements"].append({"name": name, "version": ver})
+                module_structure["requirements"].append(
+                    {"name": name.strip(), "version": ver.strip()}
+                )
 
     if os.path.exists(f"{module}.txt"):
         with open(f"{module}.txt", "r") as f:

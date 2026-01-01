@@ -49,7 +49,7 @@ class Main:
                         self.ic("module requirements:")
                         for req in module.requirements:
                             self.ic(
-                                f"{req.name} {req.version} ({'' if req.check() else 'not'} installed)"
+                                f"{req.name} {req.version} ({'' if req.check() else 'not '}installed)"
                             )
                     self.ic("=" * 20)
 
