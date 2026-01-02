@@ -1,8 +1,38 @@
+import io
 import os
 from dataclasses import dataclass
 from typing import Any
 
 from . import obfunparse as ast
+
+
+def ast_fix_code(code: str) -> str:
+    return ast.unparse(ast.parse(code))
+
+
+class FileSpoofer:
+    def __init__(self) -> None:
+        self.data = {}
+        self.build_io_name = f"_{os.urandom(8).hex().upper()}"
+
+    def add_file(self, file: str, data: bytes):
+        self.data[file] = data
+
+    def _build_types(self, file: str):
+        code = "\t\tif a[1].endswith('b'):\n"
+        code += f"\t\t\treturn {self.build_io_name}.BytesIO({repr(self.data[file])})"
+        code += "\t\telse:\n"
+        code += f"\t\t\treturn {self.build_io_name}.StringIO({repr(self.data[file])}.decode())"
+        io.StringIO()
+
+    def _build(self, file: str):
+        return f"\tif a[0] == {repr(file)}:\n{self._build_types(file)}"
+
+    def build(self):
+        code = f"import io as {self.build_io_name}\ndef open(*a, *kw):\n"
+        for file in self.data.keys():
+            code += self._build(file)
+        return ast_fix_code(code)
 
 
 @dataclass
@@ -95,7 +125,7 @@ class AstOnefileImports(ast.NodeTransformer):
         if self._ModuleLoader:
             api_path = os.path.join(os.path.dirname(__file__), "api.py")
             with open(api_path, "rb") as f:
-                api_code = ast.unparse(ast.parse(f.read().decode()))
+                api_code = ast_fix_code(f.read().decode())
         else:
             api_code = ""
 
