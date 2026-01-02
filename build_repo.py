@@ -32,9 +32,6 @@ for module in modules:
         if conn.endswith(".py"):
             build.add_module(conn)
 
-    code = build.build()
-    module_structure["code"] = code
-
     if os.path.exists("requirements.txt"):
         with open("requirements.txt", "r") as f:
             for line in f.readlines():
@@ -43,12 +40,24 @@ for module in modules:
                     {"name": name.strip(), "version": ver.strip()}
                 )
 
+    if os.path.exists("files.txt"):
+        with open("files.txt", "r") as f:
+            for file in f.readlines():
+                file = file.strip()
+                with open(file, "rb") as f:
+                    build.files.add_file(file, f.read())
+
+    code = build.build()
+    module_structure["code"] = code
+
     if os.path.exists(f"{module}.txt"):
         with open(f"{module}.txt", "r") as f:
             module_structure["desc"] = f.read().strip()
 
     structure["modules"].append(module_structure)
-    print(f"[repo-builder] {main} packed")
+    print(
+        f"[repo-builder] {main} packed ({len(build.files.data)} files, {len(build.modules)} imports)"
+    )
     os.chdir(start_dir)
 
 with open(OUTPUT, "w") as f:

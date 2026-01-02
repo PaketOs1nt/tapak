@@ -13,26 +13,32 @@ def ast_fix_code(code: str) -> str:
 class FileSpoofer:
     def __init__(self) -> None:
         self.data = {}
-        self.build_io_name = f"_{os.urandom(8).hex().upper()}"
+        self.fix_name = f"_{os.urandom(8).hex().upper()}"
 
     def add_file(self, file: str, data: bytes):
         self.data[file] = data
 
     def _build_types(self, file: str):
         code = "\t\tif a[1].endswith('b'):\n"
-        code += f"\t\t\treturn {self.build_io_name}.BytesIO({repr(self.data[file])})"
+        code += f"\t\t\treturn io.BytesIO({repr(self.data[file])})\n"
         code += "\t\telse:\n"
-        code += f"\t\t\treturn {self.build_io_name}.StringIO({repr(self.data[file])}.decode())"
-        io.StringIO()
+        code += f"\t\t\treturn io.StringIO({repr(self.data[file])}.decode())\n\n"
+        return code
+
+    def _get_inject_open(self):
+        return "__builtins__.open = open\n"
 
     def _build(self, file: str):
-        return f"\tif a[0] == {repr(file)}:\n{self._build_types(file)}"
+        return f"\tif a[0] == {repr(file)}:\n{self._build_types(file)}\n\n"
 
     def build(self):
-        code = f"import io as {self.build_io_name}\ndef open(*a, *kw):\n"
+        code = f"import io;{self.fix_name}=open\ndef open(*a, **kw):\n"
         for file in self.data.keys():
             code += self._build(file)
-        return ast_fix_code(code)
+        code += f"\treturn {self.fix_name}(*a, **kw)\n"
+        code += self._get_inject_open()
+
+        return ast_fix_code(code) + "\n"
 
 
 @dataclass
@@ -154,6 +160,7 @@ class Builder:
         self.name = name
         self.modules: dict[str, PreModule] = {}
         self.cache: list[str] = []
+        self.files = FileSpoofer()
 
     def add_module(self, file: str):
         with open(file, "rb") as f:
@@ -163,11 +170,16 @@ class Builder:
         self.modules[name] = PreModule(name, code, file)
 
     def build(self, _ModuleLoader: bool = True):
+        result = ""
+
         ast_code = ast.parse(self.code)
         fix_imports = AstOnefileImports(
             self.modules, self.cache, _ModuleLoader=_ModuleLoader
         )
         fix_imports.visit(ast_code)
 
-        result = fix_imports.compile()
+        if len(self.files.data) > 0:
+            result += self.files.build()
+
+        result += fix_imports.compile()
         return result

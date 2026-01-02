@@ -1,0 +1,1 @@
+NGram troll model from AquaCore but faster & better, need python 3.12+ using file from auqacore :)
