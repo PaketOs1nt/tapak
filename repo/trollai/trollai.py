@@ -6,6 +6,7 @@ import ngram
 
 if sys.version_info.minor < 12:
     print("need 3.12 minimum version ")
+    exit()
 
 file = "troll.model"
 
@@ -43,4 +44,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(e)

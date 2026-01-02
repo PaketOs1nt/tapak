@@ -107,7 +107,7 @@ class Main:
             try:
                 if not self.looped():
                     break
-            except Exception as e:
+            except BaseException as e:
                 self.ic(str(e))
 
 
