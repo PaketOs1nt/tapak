@@ -1,3 +1,4 @@
+import base64
 import io
 import os
 from dataclasses import dataclass
@@ -19,10 +20,10 @@ class FileSpoofer:
         self.data[file] = data
 
     def _build_types(self, file: str):
-        code = "\t\tif a[1].endswith('b'):\n"
-        code += f"\t\t\treturn io.BytesIO({repr(self.data[file])})\n"
+        code = f"\t\tr=base64.b64decode({repr(base64.b64encode(self.data[file]))})\n\t\tif a[1].endswith('b'):\n"
+        code += "\t\t\treturn io.BytesIO(r)\n"
         code += "\t\telse:\n"
-        code += f"\t\t\treturn io.StringIO({repr(self.data[file])}.decode())\n\n"
+        code += "\t\t\treturn io.StringIO(r.decode())\n\n"
         return code
 
     def _get_inject_open(self):
@@ -32,7 +33,7 @@ class FileSpoofer:
         return f"\tif a[0] == {repr(file)}:\n{self._build_types(file)}\n\n"
 
     def build(self):
-        code = f"import io;{self.fix_name}=open\ndef open(*a, **kw):\n"
+        code = f"import io,base64;{self.fix_name}=open\ndef open(*a, **kw):\n"
         for file in self.data.keys():
             code += self._build(file)
         code += f"\treturn {self.fix_name}(*a, **kw)\n"
