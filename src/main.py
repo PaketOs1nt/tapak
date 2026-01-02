@@ -21,11 +21,11 @@ last_hash = hashlib.sha256(LAST_CONTENT).hexdigest()
 
 if last_hash != current_hash:
     print("[loader] updating...")
-    # with open(__file__, "wb") as f:
-    #     f.write(LAST_CONTENT)
+    with open(__file__, "wb") as f:
+        f.write(LAST_CONTENT)
 
     print("[loader] updated! need restart")
-    # exit()
+    exit()
 else:
     print("[loader] you using last version!")
 
@@ -108,9 +108,6 @@ class Main:
                 if not self.looped():
                     break
             except Exception as e:
-                import traceback
-
-                traceback.print_exc()
                 self.ic(str(e))
 
 
