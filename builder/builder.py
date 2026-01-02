@@ -26,7 +26,7 @@ class FileSpoofer:
         return code
 
     def _get_inject_open(self):
-        return "__builtins__.open = open\n"
+        return ""
 
     def _build(self, file: str):
         return f"\tif a[0] == {repr(file)}:\n{self._build_types(file)}\n\n"
