@@ -19,10 +19,11 @@ class FileSpoofer:
         self.data[file] = data
 
     def _build_types(self, file: str):
-        code = f"\t\tr=base64.b64decode({repr(base64.b64encode(self.data[file]))})\n\t\tif a[1].endswith('b'):\n"
-        code += "\t\t\treturn io.BytesIO(r)\n"
+        name = f"_{os.urandom(8).hex().upper()}"
+        code = f"\t\t{name}=base64.b64decode({repr(base64.b64encode(self.data[file]))})\n\t\tif a[1].endswith('b'):\n"
+        code += f"\t\t\treturn io.BytesIO({name})\n"
         code += "\t\telse:\n"
-        code += "\t\t\treturn io.StringIO(r.decode())\n\n"
+        code += f"\t\t\treturn io.StringIO({name}.decode())\n\n"
         return code
 
     def _get_inject_open(self):
