@@ -1,5 +1,4 @@
 import base64
-import io
 import os
 from dataclasses import dataclass
 from typing import Any
@@ -49,9 +48,8 @@ class PreModule:
     file: str
 
     def build(self, loadername: str) -> ast.AST:
-        return ast.Assign(
-            targets=[ast.Name(id=self.name, ctx=ast.Store())],
-            value=ast.Call(
+        return ast.Expr(
+            ast.Call(
                 func=ast.Attribute(
                     value=ast.Name(id=loadername, ctx=ast.Load()),
                     attr="load",
@@ -63,24 +61,23 @@ class PreModule:
                     ast.Constant(value=self.file),
                 ],
                 keywords=[],
-            ),
+            )
         )
 
-    def cached_build(self) -> ast.AST:
-        return ast.Assign(
-            targets=[ast.Name(id=self.name, ctx=ast.Store())],
-            value=ast.Subscript(
-                value=ast.Attribute(
-                    value=ast.Name(id="ModuleLoader", ctx=ast.Load()),
-                    attr="cache",
+    def cached_build(self, loadername: str) -> ast.AST:
+        return ast.Expr(
+            ast.Call(
+                func=ast.Attribute(
+                    value=ast.Name(id=loadername, ctx=ast.Load()),
+                    attr="from_cache",
                     ctx=ast.Load(),
                 ),
-                slice=ast.Tuple(
-                    elts=[ast.Constant(value=self.name), ast.Constant(value=self.file)],
-                    ctx=ast.Load(),
-                ),
-                ctx=ast.Load(),
-            ),
+                args=[
+                    ast.Constant(value=self.name),
+                    ast.Constant(value=self.file),
+                ],
+                keywords=[],
+            )
         )
 
 
@@ -124,7 +121,9 @@ class AstOnefileImports(ast.NodeTransformer):
 
                     return ast.fix_missing_locations(mod.build(self.loader_name))
                 else:
-                    return ast.fix_missing_locations(self.modules[name].cached_build())
+                    return ast.fix_missing_locations(
+                        self.modules[name].cached_build(self.loader_name)
+                    )
 
         return self.generic_visit(node)
 
@@ -180,7 +179,8 @@ class Builder:
         fix_imports.visit(ast_code)
 
         if len(self.files.data) > 0:
-            result += self.files.build()
+            result += "\n" + self.files.build()
 
-        result += fix_imports.compile()
-        return result
+        result += "\n" + fix_imports.compile()
+
+        return ast_fix_code(result)

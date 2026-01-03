@@ -7,7 +7,7 @@ class ModuleLoader:
     def __init__(self) -> None:
         self.modules = {}
 
-    def load(self, name: str, code: str, filename: str) -> ModuleType:
+    def _load(self, name: str, code: str, filename: str) -> ModuleType:
         if (name, filename) not in ModuleLoader.cache:
             mod = ModuleType(name)
             mod.__file__ = filename
@@ -20,3 +20,9 @@ class ModuleLoader:
             return mod
 
         return ModuleLoader.cache[(name, filename)]
+
+    def load(self, name: str, code: str, filename: str):
+        globals()[name] = self._load(name, code, filename)
+
+    def from_cache(self, name, filename):
+        self.load(name, "", filename)
