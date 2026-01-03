@@ -88,10 +88,14 @@ class AstOnefileImports(ast.NodeTransformer):
         modules: dict[str, PreModule],
         cache: list[str],
         _ModuleLoader: bool = True,
+        loader: str | None = None,
     ) -> None:
         super().__init__()
         self.final: ast.AST | None = None
-        self.loader_name = "_" + os.urandom(8).hex().upper()
+        if not loader:
+            self.loader_name = "_" + os.urandom(8).hex().upper()
+        else:
+            self.loader_name = loader
         self.modules = modules
         self._ModuleLoader = _ModuleLoader
         self.cache = cache
@@ -118,7 +122,9 @@ class AstOnefileImports(ast.NodeTransformer):
                     mod_builder = Builder(mod.code, mod.file)
                     mod_builder.cache = self.cache
                     mod_builder.modules = without
-                    mod.code = mod_builder.build(_ModuleLoader=False)
+                    mod.code = mod_builder.build(
+                        _ModuleLoader=False, loader=self.loader_name
+                    )
 
                     return ast.fix_missing_locations(mod.build(self.loader_name))
                 else:
@@ -170,12 +176,12 @@ class Builder:
         name = os.path.splitext(file)[0]
         self.modules[name] = PreModule(name, code, file)
 
-    def build(self, _ModuleLoader: bool = True):
+    def build(self, _ModuleLoader: bool = True, loader: str | None = None):
         result = ""
 
         ast_code = ast.parse(self.code)
         fix_imports = AstOnefileImports(
-            self.modules, self.cache, _ModuleLoader=_ModuleLoader
+            self.modules, self.cache, _ModuleLoader=_ModuleLoader, loader=loader
         )
         fix_imports.visit(ast_code)
 
