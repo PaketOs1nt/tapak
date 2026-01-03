@@ -1,3 +1,4 @@
+import sys
 from types import ModuleType
 
 
@@ -22,8 +23,10 @@ class ModuleLoader:
 
         return ModuleLoader.cache[(name, filename)]
 
-    def load(self, name: str, code: str, filename: str):
-        globals()[name] = self._load(name, code, filename)
+    def load(self, name: str, code: str, filename: str, target=globals()):
+        injected = self._load(name, code, filename)
+        sys.modules[name] = injected
+        target[name] = injected
 
     def from_cache(self, name, filename):
-        self.load(name, "", filename)
+        self.load(name, "", filename, target=sys._getframe(1).f_globals)
