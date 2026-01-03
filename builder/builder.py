@@ -138,7 +138,9 @@ class AstOnefileImports(ast.NodeTransformer):
         if self._ModuleLoader:
             api_path = os.path.join(os.path.dirname(__file__), "api.py")
             with open(api_path, "rb") as f:
-                api_code = ast_fix_code(f.read().decode())
+                api_code = ast_fix_code(f.read().decode()).replace(
+                    "__SELF_NAME", self.loader_name
+                )
         else:
             api_code = ""
 

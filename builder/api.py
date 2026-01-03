@@ -12,6 +12,7 @@ class ModuleLoader:
             mod = ModuleType(name)
             mod.__file__ = filename
             mod.__dict__["ModuleLoader"] = ModuleLoader
+            mod.__dict__["__SELF_NAME"] = globals()["__SELF_NAME"]
             exec(compile(code, filename, "exec"), mod.__dict__)
 
             self.modules[name] = mod
