@@ -37,14 +37,29 @@ class Question:
     answers: list[Answer] | None = None
 
     def correct_index(self) -> int | None:
-        if self.answers is None:
-            return None
+        if not self.answers:
+            return
 
         for i, answer in enumerate(self.answers):
             if answer.correct:
                 return i
 
-        return None
+    def import_answers(self, q: "Question"):
+        if not q.answers or not self.answers:
+            return
+
+        for answer in q.answers:
+            idx = self.answer_text_index(answer.text)
+            if idx:
+                self.answers[idx].correct = answer.correct
+
+    def answer_text_index(self, text: str) -> int | None:
+        if not self.answers:
+            return
+
+        for i, answ in enumerate(self.answers):
+            if answ.text == text:
+                return i
 
     def compile(self) -> tuple:
         return (
@@ -380,6 +395,12 @@ class KahootBackdoorServer:
         asyncio.run_coroutine_threadsafe(self.a_remove(session), self.loop)
 
 
+def found_copy(questions: list[Question], q: Question) -> Question | None:
+    for rq in questions:
+        if rq.compile() == q.compile():
+            return rq
+
+
 def kahoot_backdoor_logger(session: KahootRemoteSession):
     print("[kahoot] new kahoot remote session connected")
     searcher = KahootSmartSearch()
@@ -410,15 +431,17 @@ def kahoot_backdoor_logger(session: KahootRemoteSession):
         )
         if searcher.finaled and searcher.finish and searcher.finish.uuid:
             answers = searcher.cache[searcher.finish.uuid]
-            q = answers[session.current_question_index]
-            correct = q.correct_index()
-            if correct is not None:
-                session.show(correct)
-                if q.answers is not None:
-                    for answer in q.answers:
-                        print(
-                            f"[kahoot] [{session.session.name} : {session.session.pin}] [{getcol(answer.correct)}{str(answer.correct).lower()}{pystyle.Colors.reset}] {answer.text}"
-                        )
+            q = found_copy(answers, question)
+            if q:
+                question.import_answers(q)
+                correct = question.correct_index()
+                if correct is not None:
+                    session.show(correct)
+                    if question.answers:
+                        for answer in question.answers:
+                            print(
+                                f"[kahoot] [{session.session.name} : {session.session.pin}] [{getcol(answer.correct)}{str(answer.correct).lower()}{pystyle.Colors.reset}] {answer.text}"
+                            )
 
         elif question.answers:
             for answer in question.answers:
